@@ -1,5 +1,8 @@
 package com.app.project.rflocus;
 
+import android.content.Context;
+import android.net.wifi.ScanResult;
+import android.net.wifi.WifiManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -8,7 +11,11 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.List;
+
 public class AdmActivity extends AppCompatActivity {
+
+    private WifiManagerThread wifiManagerThread;
 
     private String SSID1="NodeRFL1", SSID2="NodeRFL2", SSID3="NodeRFL3";
     private String MAC1="FF:FF:FF:FF:FF:A1", MAC2="FF:FF:FF:FF:FF:A2", MAC3="FF:FF:FF:FF:FF:A3";
@@ -25,6 +32,9 @@ public class AdmActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_adm);
+
+        wifiManagerThread = new WifiManagerThread(this);
+        wifiManagerThread.start();
 
         etDistAp1 = (EditText) findViewById(R.id.etDistAp1);
         etDistAp2 = (EditText) findViewById(R.id.etDistAp2);
@@ -48,21 +58,36 @@ public class AdmActivity extends AppCompatActivity {
 
         btnSend =(Button) findViewById(R.id.btnSend);
 
-        updateUI();
+        //updateUI();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        wifiManagerThread.interrupt();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        //if (scanningMode != ScanningMode.OFF) {
+            wifiManagerThread = new WifiManagerThread(this);
+            wifiManagerThread.start();
+        //}
     }
 
     public void updateUI(){
         tvSSID1.setText(SSID1);
         tvMAC1.setText(MAC1);
-        tvRSS1.setText(RSS1+" dbm");
+        tvRSS1.setText(String.format("%s dbm", Integer.toString(RSS1)));
 
         tvSSID2.setText(SSID2);
         tvMAC2.setText(MAC2);
-        tvRSS2.setText(RSS2+" dbm");
+        tvRSS2.setText(String.format("%s dbm", Integer.toString(RSS2)));
 
         tvSSID3.setText(SSID3);
         tvMAC3.setText(MAC3);
-        tvRSS3.setText(RSS3+" dbm");
+        tvRSS3.setText(String.format("%s dbm", Integer.toString(RSS3)));
 
         tvDist1.setText("Distância ("+MAC1.subSequence(12,17)+")");
         tvDist2.setText("Distância ("+MAC2.subSequence(12,17)+")");
@@ -76,6 +101,14 @@ public class AdmActivity extends AppCompatActivity {
         }
         Toast.makeText(this, "Dados enviados", Toast.LENGTH_SHORT).show();
         //tvSoma.setText(etDistAp1.getText().toString()+" "+etDistAp2.getText().toString()+" "+etDistAp3.getText().toString());
+    }
 
+    public void showReadings(List<WifiReading> readings){
+        for (WifiReading reading : readings){
+            SSID1 = reading.ssid;
+            MAC1 = reading.mac;
+            RSS1 = reading.signal;
+        }
+        updateUI();
     }
 }
