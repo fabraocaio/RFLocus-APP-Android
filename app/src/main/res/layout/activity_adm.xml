@@ -171,9 +171,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.5"
-        tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="256dp" />
+        app:layout_constraintGuide_percent="0.61" />
 
     <TextView
         android:id="@+id/tvDist1"
@@ -305,7 +303,7 @@
         android:layout_marginBottom="8dp"
         android:layout_marginRight="8dp"
         android:onClick="sendRasp"
-        android:text="Button"
+        android:text="Enviar"
         app:layout_constraintBottom_toTopOf="@+id/guidelineH80"
         app:layout_constraintRight_toLeftOf="@+id/guidelineV98" />
 
@@ -314,6 +312,6 @@
         android:layout_height="wrap_content"
         android:id="@+id/guidelineH80"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.8" />
+        app:layout_constraintGuide_percent="0.9" />
 
 </android.support.constraint.ConstraintLayout>
