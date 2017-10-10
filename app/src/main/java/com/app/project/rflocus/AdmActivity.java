@@ -22,43 +22,36 @@ import java.util.List;
 public class AdmActivity extends AppCompatActivity {
 
     private WifiManagerThread wifiManagerThread;
-    private Refrescame refrescame;
-    
+    private PeriodicScan periodicScan;
+
     private String SSID1, SSID2, SSID3;
     private String MAC1, MAC2, MAC3;
     private Integer RSS1, RSS2, RSS3;
 
     private EditText etDistAp1, etDistAp2, etDistAp3;
     private TextView tvSSID1, tvMAC1, tvRSS1, tvSSID2,
-                    tvMAC2, tvRSS2, tvSSID3, tvMAC3, tvRSS3,
-                    tvDist1, tvDist2, tvDist3;
+            tvMAC2, tvRSS2, tvSSID3, tvMAC3, tvRSS3,
+            tvDist1, tvDist2, tvDist3;
 
     private Button btnSend;
-    int  MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 5;
+    int  MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION;
 
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
 
         if (requestCode == MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION){
-        //switch (requestCode) {
-        //    case MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                    // permission was granted, yay! Do the
-                    // contacts-related task you need to do.
-
-                } else {
-
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
-                }
+            // If request is cancelled, the result arrays are empty.
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // permission was granted, yay! Do the
+                // contacts-related task you need to do.
+            } else {
+                // permission denied, boo! Disable the
+                // functionality that depends on this permission.
+            }
         }
-
-            // other 'case' lines to check for other
-            // permissions this app might request
+        // other 'case' lines to check for other
+        // permissions this app might request
     }
 
 
@@ -67,10 +60,11 @@ public class AdmActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_adm);
 
+        //Check permission of FINE LOCATION
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.ACCESS_FINE_LOCATION)){
-                    //Send user a resquest for permition
+                //Send user a resquest for permition
             } else {
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION},MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
             }
@@ -99,21 +93,20 @@ public class AdmActivity extends AppCompatActivity {
 
         btnSend =(Button) findViewById(R.id.btnSend);
 
-        comienzaRefresco();
-        //updateUI();
+        startRefresh();
     }
 
     @Override
     protected void onDestroy(){
         super.onDestroy();
-        paraRefresco();
+        stopRefresh();
     }
-    
+
     @Override
     public void onPause() {
         super.onPause();
         //wifiManagerThread.interrupt();
-        paraRefresco();
+        stopRefresh();
     }
 
     @Override
@@ -123,7 +116,7 @@ public class AdmActivity extends AppCompatActivity {
         //    wifiManagerThread = new WifiManagerThread(this);
         //    wifiManagerThread.start();
         //}
-        comienzaRefresco();
+        startRefresh();
     }
 
     private void updateUIHardcoded(){
@@ -198,32 +191,32 @@ public class AdmActivity extends AppCompatActivity {
         updateUI();
     }
 
-    private void paraRefresco() {
-        if(refrescame != null)
-            refrescame.keepRunning = false;
-        refrescame = null;
+    private void stopRefresh() {
+        if(periodicScan != null)
+            periodicScan.keepRunning = false;
+        periodicScan = null;
     }
 
-    private void comienzaRefresco() {
-        //refrescame classe de tarefa assincrona
-        if(refrescame == null) {
-            refrescame = new Refrescame();
-            refrescame.execute();
+    private void startRefresh() {
+        //periodicScan classe de tarefa assincrona
+        if(periodicScan == null) {
+            periodicScan = new PeriodicScan();
+            periodicScan.execute();
         }
-        if (!refrescame.keepRunning) {
-            refrescame = new Refrescame();
-            refrescame.execute();
+        if (!periodicScan.keepRunning) {
+            periodicScan = new PeriodicScan();
+            periodicScan.execute();
         }
     }
 
-    Runnable doRefresca = new Runnable() {
+    Runnable doRefresh = new Runnable() {
         @Override
         public void run() {
-            refresca();
+            refresh();
         }
     };
 
-    private void refresca() {
+    private void refresh() {
         WifiManager wifiMgr = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         wifiMgr.startScan();
         List<ScanResult> results= wifiMgr.getScanResults();
@@ -246,12 +239,12 @@ public class AdmActivity extends AppCompatActivity {
     }
 
 
-    private class Refrescame extends AsyncTask<Void, Void, Void> {
+    private class PeriodicScan extends AsyncTask<Void, Void, Void> {
         public boolean keepRunning = true;
         @Override
         protected Void doInBackground(Void... params) {
             while(keepRunning) {
-                runOnUiThread(doRefresca);
+                runOnUiThread(doRefresh);
                 try {
                     Thread.sleep(2000);
                 } catch (InterruptedException e) {
