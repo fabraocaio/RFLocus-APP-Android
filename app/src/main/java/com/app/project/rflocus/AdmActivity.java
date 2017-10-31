@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -22,6 +23,8 @@ import java.util.List;
 public class AdmActivity extends AppCompatActivity {
 
     private PeriodicScan periodicScan;
+    WifiManager wifiMgr;
+    private boolean wifiInitStt;
 
     private String SSID1, SSID2, SSID3;
     private String MAC1, MAC2, MAC3;
@@ -53,8 +56,7 @@ public class AdmActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
         if (requestCode == MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION){
             // If request is cancelled, the result arrays are empty.
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -75,6 +77,7 @@ public class AdmActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_adm);
 
+        //Check if Adnroid version is superior then Lollipop
         //Check permission of FINE LOCATION
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
@@ -87,6 +90,9 @@ public class AdmActivity extends AppCompatActivity {
 
             }
         }
+
+        wifiMgr = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        wifiInitStt = wifiMgr.isWifiEnabled();
 
         etDistAp1 = (EditText) findViewById(R.id.etDistAp1);
         etDistAp2 = (EditText) findViewById(R.id.etDistAp2);
@@ -117,6 +123,8 @@ public class AdmActivity extends AppCompatActivity {
     protected void onDestroy(){
         super.onDestroy();
         stopRefresh();
+        //if (!wifiInitStt)
+        wifiMgr.setWifiEnabled(wifiInitStt);
     }
 
     @Override
@@ -131,6 +139,9 @@ public class AdmActivity extends AppCompatActivity {
         startRefresh();
     }
 
+    /**
+     * Função que gera valores defaults para as variaveis globais dos APs
+     */
     private void updateUIHardcoded(){
         this.SSID1="NodeRFL1";
         this.SSID2="NodeRFL2";
@@ -143,6 +154,9 @@ public class AdmActivity extends AppCompatActivity {
         this.RSS3=-74;
     }
 
+    /**
+     * Função para atualizar as informações exibidas na interface do usuário
+     */
     public void updateUI(){
         tvSSID1.setText(SSID1);
         tvMAC1.setText(MAC1);
@@ -161,8 +175,15 @@ public class AdmActivity extends AppCompatActivity {
         tvDist3.setText("Distância à ("+MAC3.subSequence(12,17)+")");
     }
 
+    /**
+     * Função para atualizar as variaveis globais referentes aos Aps
+     *
+     * @param results a list of ScanResult
+     * @param list an ArrayList with the MAC Address or SSID
+     * @param opc a Integer witch determinate if the ArrayList contains MAC or SSID
+     */
+    public void updateInfo(List<ScanResult> results, ArrayList list, int opc){
 
-    public void updateInfo(List<ScanResult> results, ArrayList<String> list, int opc){
         switch (opc) {
             case 0: {
                 for (ScanResult result : results) {
@@ -203,6 +224,11 @@ public class AdmActivity extends AppCompatActivity {
         updateUI();
     }
 
+    /**
+     * Função da evento gerado ao clicar no botão Enviar
+     *
+     * @param v reference to view
+     */
     public void sendRasp (View v){
         if ( (etDistAp1.getText().toString().matches("")) || (etDistAp2.getText().toString().matches("")) || (etDistAp3.getText().toString().matches("")) ) {
             Toast.makeText(this, "Campo vazio", Toast.LENGTH_SHORT).show();
@@ -212,12 +238,18 @@ public class AdmActivity extends AppCompatActivity {
         //tvSoma.setText(etDistAp1.getText().toString()+" "+etDistAp2.getText().toString()+" "+etDistAp3.getText().toString());
     }
 
+    /**
+     * Função para parar a thread periódica
+     */
     private void stopRefresh() {
         if(periodicScan != null)
             periodicScan.keepRunning = false;
         periodicScan = null;
     }
 
+    /**
+     * Função para iniciar a thread preriódica
+     */
     private void startRefresh() {
         //periodicScan classe de tarefa assincrona
         if(periodicScan == null) {
@@ -237,10 +269,14 @@ public class AdmActivity extends AppCompatActivity {
         }
     };
 
+    /**
+     * Função que realiza o scan das redes WiFi. Ela se sertifica de manter o WiFi ativo
+     */
     private void refresh() {
-        ArrayList<String> macs = setListMAC();
-        ArrayList<String> ssids = serListSSID();
-        WifiManager wifiMgr = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        ArrayList macs = setListMAC();
+        ArrayList ssids = serListSSID();
+        wifiMgr = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        if (!wifiMgr.isWifiEnabled()) wifiMgr.setWifiEnabled(true);
         wifiMgr.startScan();
         List<ScanResult> results= wifiMgr.getScanResults();
         updateInfo(results,macs,0);
@@ -266,7 +302,9 @@ public class AdmActivity extends AppCompatActivity {
 
 
     private class PeriodicScan extends AsyncTask<Void, Void, Void> {
-        public boolean keepRunning = true;
+
+        boolean keepRunning = true;
+
         @Override
         protected Void doInBackground(Void... params) {
             while(keepRunning) {
