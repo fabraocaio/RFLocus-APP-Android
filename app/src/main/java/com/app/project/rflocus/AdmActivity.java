@@ -183,8 +183,10 @@ public class AdmActivity extends AppCompatActivity {
      * @param opc a Integer witch determinate if the ArrayList contains MAC or SSID
      */
     public void updateInfo(List<ScanResult> results, ArrayList list, int opc){
+        RSS1 = RSS2 = RSS3 = 0;
 
         switch (opc) {
+
             case 0: {
                 for (ScanResult result : results) {
                     if (result.BSSID.equals(list.get(0))) {
@@ -270,7 +272,7 @@ public class AdmActivity extends AppCompatActivity {
     };
 
     /**
-     * Função que realiza o scan das redes WiFi. Ela se sertifica de manter o WiFi ativo
+     * Função que realiza o scan das redes WiFi. Ela se certifica de manter o WiFi ativo
      */
     private void refresh() {
         ArrayList macs = setListMAC();
@@ -283,20 +285,11 @@ public class AdmActivity extends AppCompatActivity {
         //updateInfo(results,ssids,1);
 
         startRefresh();
-        //if(tmpresults == null) results = new ArrayList<ScanResult>();
         /*
+        if(tmpresults == null) results = new ArrayList<ScanResult>();
+
         else {
             for(ScanResult s : tmpresults) {
-                boolean found = false;
-                int i = 0;
-                while(!found && i < results.size()) {
-                    if(results.get(i).BSSID.equals(s.BSSID)) {
-                        found = true;
-                        results.get(i).level = s.level;
-                    }
-                    i++;
-                }
-            }
         }*/
     }
 
