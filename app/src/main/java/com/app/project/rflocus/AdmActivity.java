@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.net.wifi.ScanResult;
+import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
@@ -38,6 +39,26 @@ public class AdmActivity extends AppCompatActivity {
     Button btnSend;
     int  MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION;
     ArrayList<String> listMAC = new ArrayList<>();
+
+    private void autoConnect(String networkSSID){
+        WifiConfiguration conf = new WifiConfiguration();
+        conf.SSID = "\"" + networkSSID + "\"";   // Please note the quotes. String should contain ssid in quotes
+        //For OPEN password
+        conf.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
+        //Add setting to WifiManager
+        wifiMgr = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        wifiMgr.addNetwork(conf);
+    }
+
+    private void autoConnect(String networkSSID, String networkPass){
+        WifiConfiguration conf = new WifiConfiguration();
+        conf.SSID = "\"" + networkSSID + "\"";   // Please note the quotes. String should contain ssid in quotes
+        //For WPA password
+        conf.preSharedKey = "\""+ networkPass +"\"";
+        //Add setting to WifiManager
+        wifiMgr = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        wifiMgr.addNetwork(conf);
+    }
 
     private ArrayList setListMAC(){
         ArrayList<String> listMacs = new ArrayList<>();
@@ -116,6 +137,8 @@ public class AdmActivity extends AppCompatActivity {
 
         btnSend =(Button) findViewById(R.id.btnSend);
 
+        autoConnect("UTFPRWEB");
+        //autoConnect("Avestruz Voador","munchkin");
         startRefresh();
     }
 
