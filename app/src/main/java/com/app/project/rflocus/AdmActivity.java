@@ -76,14 +76,16 @@ public class AdmActivity extends AppCompatActivity {
         setContentView(R.layout.activity_adm);
 
         //Check permission of FINE LOCATION
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.ACCESS_FINE_LOCATION)){
-                //Send user a resquest for permition
-            } else {
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION},MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
-            }
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                    != PackageManager.PERMISSION_GRANTED) {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.ACCESS_FINE_LOCATION)){
+                    //Send user a resquest for permition
+                } else {
+                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION},MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+                }
 
+            }
         }
 
         etDistAp1 = (EditText) findViewById(R.id.etDistAp1);
@@ -120,17 +122,12 @@ public class AdmActivity extends AppCompatActivity {
     @Override
     public void onPause() {
         super.onPause();
-        //wifiManagerThread.interrupt();
         stopRefresh();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        //if (scanningMode != ScanningMode.OFF) {
-        //    wifiManagerThread = new WifiManagerThread(this);
-        //    wifiManagerThread.start();
-        //}
         startRefresh();
     }
 
@@ -163,6 +160,7 @@ public class AdmActivity extends AppCompatActivity {
         tvDist2.setText("Distância à ("+MAC2.subSequence(12,17)+")");
         tvDist3.setText("Distância à ("+MAC3.subSequence(12,17)+")");
     }
+
 
     public void updateInfo(List<ScanResult> results, ArrayList<String> list, int opc){
         switch (opc) {
