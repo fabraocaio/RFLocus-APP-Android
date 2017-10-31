@@ -21,7 +21,6 @@ import java.util.List;
 
 public class AdmActivity extends AppCompatActivity {
 
-    private WifiManagerThread wifiManagerThread;
     private PeriodicScan periodicScan;
 
     private String SSID1, SSID2, SSID3;
@@ -33,9 +32,25 @@ public class AdmActivity extends AppCompatActivity {
             tvMAC2, tvRSS2, tvSSID3, tvMAC3, tvRSS3,
             tvDist1, tvDist2, tvDist3;
 
-    private Button btnSend;
+    Button btnSend;
     int  MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION;
+    ArrayList<String> listMAC = new ArrayList<>();
 
+    private ArrayList setListMAC(){
+        ArrayList<String> listMacs = new ArrayList<>();
+        listMacs.add("64:ae:0c:65:7a:71");
+        listMacs.add("64:ae:0c:be:71:03");
+        listMacs.add("64:ae:0c:91:76:31");
+        return listMacs;
+    }
+
+    private ArrayList serListSSID(){
+        ArrayList<String> listSSID = new ArrayList<>();
+        listSSID.add("RFLocus 01");
+        listSSID.add("RFLocus 02");
+        listSSID.add("RFLocus 03");
+        return listSSID;
+    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
@@ -149,30 +164,47 @@ public class AdmActivity extends AppCompatActivity {
         tvDist3.setText("Distância à ("+MAC3.subSequence(12,17)+")");
     }
 
-    public void updateUI(List<ScanResult> results){
-        int i =0;
-        if (results.size()>3){
-            switch (i){
-                case 0:{
-                    SSID1=results.get(0).SSID;
-                    MAC1=results.get(0).BSSID;
-                    RSS1=results.get(0).level;
+    public void updateInfo(List<ScanResult> results, ArrayList<String> list, int opc){
+        switch (opc) {
+            case 0: {
+                for (ScanResult result : results) {
+                    if (result.BSSID.equals(list.get(0))) {
+                        SSID1 = result.SSID;
+                        MAC1 = result.BSSID;
+                        RSS1 = result.level;
+                    } else if (result.BSSID.equals(list.get(1))) {
+                        SSID2 = result.SSID;
+                        MAC2 = result.BSSID;
+                        RSS2 = result.level;
+                    } else if (result.BSSID.equals(list.get(2))) {
+                        SSID3 = result.SSID;
+                        MAC3 = result.BSSID;
+                        RSS3 = result.level;
+                    }
                 }
-                case 1:{
-                    SSID2=results.get(1).SSID;
-                    MAC2=results.get(1).BSSID;
-                    RSS2=results.get(1).level;
+            } break;
+            case 1: {
+                for (ScanResult result : results) {
+                    if (result.SSID.equals(list.get(0))) {
+                        SSID1 = result.SSID;
+                        MAC1 = result.BSSID;
+                        RSS1 = result.level;
+                    } else if (result.SSID.equals(list.get(1))) {
+                        SSID2 = result.SSID;
+                        MAC2 = result.BSSID;
+                        RSS2 = result.level;
+                    } else if (result.SSID.equals(list.get(2))) {
+                        SSID3 = result.SSID;
+                        MAC3 = result.BSSID;
+                        RSS3 = result.level;
+                    }
                 }
-                case 2:{
-                    SSID3=results.get(2).SSID;
-                    MAC3=results.get(2).BSSID;
-                    RSS3=results.get(2).level;
-                }
-            }
-
-            updateUI();
+            } break;
         }
+
+        updateUI();
     }
+
     public void sendRasp (View v){
         if ( (etDistAp1.getText().toString().matches("")) || (etDistAp2.getText().toString().matches("")) || (etDistAp3.getText().toString().matches("")) ) {
             Toast.makeText(this, "Campo vazio", Toast.LENGTH_SHORT).show();
@@ -180,15 +212,6 @@ public class AdmActivity extends AppCompatActivity {
         }
         Toast.makeText(this, "Dados enviados", Toast.LENGTH_SHORT).show();
         //tvSoma.setText(etDistAp1.getText().toString()+" "+etDistAp2.getText().toString()+" "+etDistAp3.getText().toString());
-    }
-
-    public void showReadings(List<WifiReading> readings){
-        for (WifiReading reading : readings){
-            SSID1 = reading.ssid;
-            MAC1 = reading.mac;
-            RSS1 = reading.signal;
-        }
-        updateUI();
     }
 
     private void stopRefresh() {
@@ -217,10 +240,15 @@ public class AdmActivity extends AppCompatActivity {
     };
 
     private void refresh() {
+        ArrayList<String> macs = setListMAC();
+        ArrayList<String> ssids = serListSSID();
         WifiManager wifiMgr = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         wifiMgr.startScan();
         List<ScanResult> results= wifiMgr.getScanResults();
-        updateUI(results);
+        updateInfo(results,macs,0);
+        //updateInfo(results,ssids,1);
+
+        startRefresh();
         //if(tmpresults == null) results = new ArrayList<ScanResult>();
         /*
         else {
@@ -246,7 +274,7 @@ public class AdmActivity extends AppCompatActivity {
             while(keepRunning) {
                 runOnUiThread(doRefresh);
                 try {
-                    Thread.sleep(2000);
+                    Thread.sleep(500);
                 } catch (InterruptedException e) {
                     keepRunning = false;
                 }
