@@ -396,18 +396,32 @@ public class AdmActivity extends AppCompatActivity {
     private JSONObject createJSON(){
         JSONObject jsonObj = new JSONObject();
         Map<String, String> map = new HashMap<>();
+        Map<String, String> map2 = new HashMap<>();
+        Map<String, String> map3 = new HashMap<>();
+        String array = "";
         try {
+            jsonObj.put("type","real");
+            jsonObj.put("type","real");
+
+            map.put("\"apid\"","\""+MAC1+"\" ");
             map.put("rssi", Integer.toString(RSS1));
             map.put("dist", etDistAp2.getText().toString());
-            jsonObj.put(MAC1, map);
+            array=map.toString();
 
+            //jsonObj.put(MAC1, map);
+
+            map.put("apid",MAC2);
             map.put("rssi", Integer.toString(RSS2));
             map.put("dist", etDistAp2.getText().toString());
-            jsonObj.put(MAC2, map);
+            //jsonObj.put(MAC2, map);
+            array+=map.toString();
 
+            map.put("apid",MAC3);
             map.put("rssi", Integer.toString(RSS3));
             map.put("dist", etDistAp3.getText().toString());
-            jsonObj.put(MAC3, map);
+            array+=map.toString();
+            //jsonObj.put(MAC3, map);
+            jsonObj.put("data",array);
         } catch(JSONException e) {
             e.printStackTrace();
         }
@@ -419,7 +433,7 @@ public class AdmActivity extends AppCompatActivity {
      * @param jsonObject to be send
      */
     private void requestPUT(final JSONObject jsonObject){
-        String url = "http://192.168.137.157:5500/";
+        String url = "http://192.168.0.1:5500/";
         RequestQueue queue = Volley.newRequestQueue(this);
         JsonObjectRequest putRequest = new JsonObjectRequest(Request.Method.PUT, url, jsonObject,
                 new Response.Listener<JSONObject>() {
