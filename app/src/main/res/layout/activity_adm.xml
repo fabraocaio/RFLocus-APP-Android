@@ -38,9 +38,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.1"
-        tools:layout_editor_absoluteY="51dp"
-        tools:layout_editor_absoluteX="0dp" />
+        app:layout_constraintGuide_percent="0.05" />
 
     <TextView
         android:id="@+id/tvSSID1"
@@ -80,9 +78,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.2"
-        tools:layout_editor_absoluteY="102dp"
-        tools:layout_editor_absoluteX="0dp" />
+        app:layout_constraintGuide_percent="0.15" />
 
     <TextView
         android:id="@+id/tvSSID2"
@@ -122,7 +118,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.3" />
+        app:layout_constraintGuide_percent="0.25" />
 
     <TextView
         android:id="@+id/tvSSID3"
@@ -171,7 +167,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.61" />
+        app:layout_constraintGuide_percent="0.43" />
 
     <TextView
         android:id="@+id/tvDist1"
@@ -180,12 +176,12 @@
         android:layout_marginLeft="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:text="Distância FF:FF"
+        android:text="Posição X:"
         app:layout_constraintLeft_toLeftOf="@+id/guidelineV2"
         app:layout_constraintTop_toTopOf="@+id/guidelineH50" />
 
     <EditText
-        android:id="@+id/etDistAp1"
+        android:id="@+id/etPosX"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
@@ -209,9 +205,9 @@
         android:layout_marginLeft="5dp"
         android:layout_marginStart="5dp"
         android:text="(cm)"
-        app:layout_constraintBottom_toBottomOf="@+id/etDistAp1"
-        app:layout_constraintLeft_toRightOf="@+id/etDistAp1"
-        app:layout_constraintTop_toTopOf="@+id/etDistAp1"
+        app:layout_constraintBottom_toBottomOf="@+id/etPosX"
+        app:layout_constraintLeft_toRightOf="@+id/etPosX"
+        app:layout_constraintTop_toTopOf="@+id/etPosX"
         app:layout_constraintVertical_bias="0.5" />
 
     <TextView
@@ -220,13 +216,13 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="8dp"
         android:layout_marginStart="8dp"
-        android:text="Distância FF:FF"
-        app:layout_constraintLeft_toLeftOf="@+id/guidelineV2"
         android:layout_marginTop="32dp"
+        android:text="Posição Y:"
+        app:layout_constraintLeft_toLeftOf="@+id/guidelineV2"
         app:layout_constraintTop_toBottomOf="@+id/tvDist1" />
 
     <EditText
-        android:id="@+id/etDistAp2"
+        android:id="@+id/etPosY"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
@@ -250,9 +246,9 @@
         android:layout_marginLeft="8dp"
         android:layout_marginStart="5dp"
         android:text="(cm)"
-        app:layout_constraintBottom_toBottomOf="@+id/etDistAp2"
-        app:layout_constraintLeft_toRightOf="@+id/etDistAp2"
-        app:layout_constraintTop_toTopOf="@+id/etDistAp2"
+        app:layout_constraintBottom_toBottomOf="@+id/etPosY"
+        app:layout_constraintLeft_toRightOf="@+id/etPosY"
+        app:layout_constraintTop_toTopOf="@+id/etPosY"
         app:layout_constraintVertical_bias="0.5" />
 
     <TextView
@@ -262,12 +258,12 @@
         android:layout_marginLeft="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="32dp"
-        android:text="Distância FF:FF"
+        android:text="Posição Z:"
         app:layout_constraintLeft_toLeftOf="@+id/guidelineV2"
         app:layout_constraintTop_toBottomOf="@+id/tvDist2" />
 
     <EditText
-        android:id="@+id/etDistAp3"
+        android:id="@+id/etPosZ"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginLeft="8dp"
@@ -291,9 +287,9 @@
         android:layout_marginLeft="5dp"
         android:layout_marginStart="5dp"
         android:text="(cm)"
-        app:layout_constraintBottom_toBottomOf="@+id/etDistAp3"
-        app:layout_constraintLeft_toRightOf="@+id/etDistAp3"
-        app:layout_constraintTop_toTopOf="@+id/etDistAp3"
+        app:layout_constraintBottom_toBottomOf="@+id/etPosZ"
+        app:layout_constraintLeft_toRightOf="@+id/etPosZ"
+        app:layout_constraintTop_toTopOf="@+id/etPosZ"
         app:layout_constraintVertical_bias="0.5" />
 
     <Button
@@ -312,6 +308,6 @@
         android:layout_height="wrap_content"
         android:id="@+id/guidelineH80"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.9" />
+        app:layout_constraintGuide_percent="0.85" />
 
 </android.support.constraint.ConstraintLayout>

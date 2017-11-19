@@ -37,10 +37,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.android.volley.Request.*;
+
 
 public class AdmActivity extends AppCompatActivity {
 
-    private String tag = "AdmActivity";
+    private String TAG = "AdmActivity";
 
     private String url = "http://192.168.100.18:5500/";
 
@@ -51,21 +53,15 @@ public class AdmActivity extends AppCompatActivity {
     private Ap ap1;
     private Ap ap2;
     private Ap ap3;
+    private List<Ap> apList;
 
-    private String SSID1, SSID2, SSID3;
-    private String MAC1, MAC2, MAC3;
-    private Integer RSS1, RSS2, RSS3;
-
-    private EditText etDistAp1, etDistAp2, etDistAp3;
+    private EditText etPosX, etPosY, etPosZ;
     private TextView tvSSID1, tvMAC1, tvRSS1, tvSSID2,
             tvMAC2, tvRSS2, tvSSID3, tvMAC3, tvRSS3,
             tvDist1, tvDist2, tvDist3;
     private Button btnSend;
 
     private int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION;
-
-    //RequestQueue requestQueue = Volley.newRequestQueue(this);
-    //ArrayList<String> listMAC = new ArrayList<>();
 
     /**
      * Function to automatically connect to a OPEN Wi-Fi network
@@ -79,7 +75,10 @@ public class AdmActivity extends AppCompatActivity {
         conf.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
         //Add setting to WifiManager
         wifiMgr = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-        wifiMgr.addNetwork(conf);
+        int netID = wifiMgr.addNetwork(conf);
+        wifiMgr.disconnect();
+        wifiMgr.enableNetwork(netID, true);
+        wifiMgr.reconnect();
         Log.d("AutoConnect", "Open");
     }
 
@@ -97,6 +96,10 @@ public class AdmActivity extends AppCompatActivity {
         //Add setting to WifiManager
         wifiMgr = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         wifiMgr.addNetwork(conf);
+        int netID = wifiMgr.addNetwork(conf);
+        wifiMgr.disconnect();
+        wifiMgr.enableNetwork(netID, true);
+        wifiMgr.reconnect();
         Log.d("AutoConnect", "WPA");
     }
 
@@ -109,12 +112,18 @@ public class AdmActivity extends AppCompatActivity {
     private void autoConnectWEP(String networkSSID, String networkPass) {
         WifiConfiguration conf = new WifiConfiguration();
         conf.SSID = "\"" + networkSSID + "\"";   // Please note the quotes. String should contain ssid in quotes
-
         //for wep
         conf.wepKeys[0] = "\"" + networkPass + "\"";
         conf.wepTxKeyIndex = 0;
         conf.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
         conf.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.WEP40);
+        //Add setting to WifiManager
+        wifiMgr = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        wifiMgr.addNetwork(conf);
+        int netID = wifiMgr.addNetwork(conf);
+        wifiMgr.disconnect();
+        wifiMgr.enableNetwork(netID, true);
+        wifiMgr.reconnect();
     }
 
     /**
@@ -136,23 +145,18 @@ public class AdmActivity extends AppCompatActivity {
         listMacs.add("64:ae:0c:65:7a:71");
         listMacs.add("64:ae:0c:be:71:03");
         listMacs.add("64:ae:0c:91:76:31");
-        //listMacs.add("2c:55:d3:b0:1c:c4");
+        listMacs.add("2c:55:d3:b0:1c:c4");
         // ---------------------------------- //
 
-        return listMacs;
-    }
+        /*
+        // ----------MACS SafeHouse--------- //
+        listMacs.add("9c:7d:a3:eb:95:28");
+        listMacs.add("00:04:df:07:b5:eb");
+        listMacs.add("20:10:7a:e0:37:f0");
+        // ---------------------------------- //
+        */
 
-    /**
-     * Function that returns a list of SSIDs for tests
-     *
-     * @return ArrayList with the default SSID
-     */
-    private ArrayList serListSSID() {
-        ArrayList<String> listSSID = new ArrayList<>();
-        listSSID.add("RFLocus 01");
-        listSSID.add("RFLocus 02");
-        listSSID.add("RFLocus 03");
-        return listSSID;
+        return listMacs;
     }
 
     /**
@@ -207,9 +211,9 @@ public class AdmActivity extends AppCompatActivity {
         wifiMgr = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         wifiInitStt = wifiMgr.isWifiEnabled();
 
-        etDistAp1 = (EditText) findViewById(R.id.etDistAp1);
-        etDistAp2 = (EditText) findViewById(R.id.etDistAp2);
-        etDistAp3 = (EditText) findViewById(R.id.etDistAp3);
+        etPosX = (EditText) findViewById(R.id.etPosX);
+        etPosY = (EditText) findViewById(R.id.etPosY);
+        etPosZ = (EditText) findViewById(R.id.etPosZ);
 
         tvSSID1 = (TextView) findViewById(R.id.tvSSID1);
         tvMAC1 = (TextView) findViewById(R.id.tvMAC1);
@@ -229,11 +233,20 @@ public class AdmActivity extends AppCompatActivity {
 
         btnSend = (Button) findViewById(R.id.btnSend);
 
+        ap1 = new Ap();
+        ap2 = new Ap();
+        ap3 = new Ap();
+        apList = new ArrayList();
+        apList.add(ap1);
+        apList.add(ap2);
+        apList.add(ap3);
+
         //autoConnectOPEN("UTFPRWEB");
         //autoConnectWAP("narsil","1119072205");
         //autoConnectWAP("FUNBOX-BOARDGAME-CAFE","Fb-4130400780");
         //autoConnectWEP("RFLocus","oficina3");
-        setAps();
+        requestGET();
+        //setAps();
         startRefresh();
     }
 
@@ -257,112 +270,40 @@ public class AdmActivity extends AppCompatActivity {
         startRefresh();
     }
 
-    private void setAps() {
-        SSID1 = "RFLocus 01";
-        MAC1 = "FF:FF:FF:FF:FF:01";
-        RSS1 = 0;
-
-        SSID2 = "RFLocus 02";
-        MAC2 = "FF:FF:FF:FF:FF:02";
-        RSS2 = 0;
-
-        SSID3 = "RFLocus 03";
-        MAC3 = "FF:FF:FF:FF:FF:03";
-        RSS3 = 0;
-    }
-
     /**
      * Function to update the information displayed in the user interface
+     *
+     * @param apList List with the MAC's Address
      */
-    public void updateUI() {
-        tvSSID1.setText(SSID1);
-        tvMAC1.setText(MAC1);
-        tvRSS1.setText(String.format("%s dbm", Integer.toString(RSS1)));
+    private void updateUI(List<Ap> apList){
+        tvSSID1.setText(apList.get(0).getSsid());
+        tvMAC1.setText(apList.get(0).getMac());
+        tvRSS1.setText(String.format("%s dbm", Integer.toString(apList.get(0).getRssi())));
 
-        tvSSID2.setText(SSID2);
-        tvMAC2.setText(MAC2);
-        tvRSS2.setText(String.format("%s dbm", Integer.toString(RSS2)));
+        tvSSID2.setText(apList.get(1).getSsid());
+        tvMAC2.setText(apList.get(1).getMac());
+        tvRSS2.setText(String.format("%s dbm", Integer.toString(apList.get(1).getRssi())));
 
-        tvSSID3.setText(SSID3);
-        tvMAC3.setText(MAC3);
-        tvRSS3.setText(String.format("%s dbm", Integer.toString(RSS3)));
-
-        tvDist1.setText("Distância à (" + MAC1.subSequence(12, 17) + ")");
-        tvDist2.setText("Distância à (" + MAC2.subSequence(12, 17) + ")");
-        tvDist3.setText("Distância à (" + MAC3.subSequence(12, 17) + ")");
+        tvSSID3.setText(apList.get(2).getSsid());
+        tvMAC3.setText(apList.get(2).getMac());
+        tvRSS3.setText(String.format("%s dbm", Integer.toString(apList.get(2).getRssi())));
     }
 
     /**
-     * Function to update global variables for APs
+     * Function to update AP information
      *
      * @param results a list of ScanResult
-     * @param list    an ArrayList with the MAC Address or SSID
-     * @param opc     a Integer witch determinate if the ArrayList contains MAC or SSID
+     * @param apList  List with the MAC's Address
      */
-    public void updateInfo(List<ScanResult> results, ArrayList list, int opc) {
-        RSS1 = RSS2 = RSS3 = 0;
-
-        switch (opc) {
-
-            case 0: {
-                for (ScanResult result : results) {
-                    if (result.BSSID.equals(list.get(0))) {
-                        SSID1 = result.SSID;
-                        MAC1 = result.BSSID;
-                        RSS1 = result.level;
-                    } else if (result.BSSID.equals(list.get(1))) {
-                        SSID2 = result.SSID;
-                        MAC2 = result.BSSID;
-                        RSS2 = result.level;
-                    } else if (result.BSSID.equals(list.get(2))) {
-                        SSID3 = result.SSID;
-                        MAC3 = result.BSSID;
-                        RSS3 = result.level;
-                    }
+    private void updateAP(List<ScanResult> results, List<Ap> apList){
+        for (ScanResult result : results) {
+            for (Ap ap : apList) {
+                if (ap.getMac().equals(result.BSSID)){
+                    ap.setSsid(result.SSID);
+                    ap.setRssi(result.level);
                 }
             }
-            break;
-            case 1: {
-                for (ScanResult result : results) {
-                    if (result.SSID.equals(list.get(0))) {
-                        SSID1 = result.SSID;
-                        MAC1 = result.BSSID;
-                        RSS1 = result.level;
-                    } else if (result.SSID.equals(list.get(1))) {
-                        SSID2 = result.SSID;
-                        MAC2 = result.BSSID;
-                        RSS2 = result.level;
-                    } else if (result.SSID.equals(list.get(2))) {
-                        SSID3 = result.SSID;
-                        MAC3 = result.BSSID;
-                        RSS3 = result.level;
-                    }
-                }
-            }
-            break;
-            case 2: {
-                int i = 0;
-                for (ScanResult result : results) {
-                    if (i == 0) {
-                        SSID1 = result.SSID;
-                        MAC1 = result.BSSID;
-                        RSS1 = result.level;
-                    } else if (i == 1) {
-                        SSID2 = result.SSID;
-                        MAC2 = result.BSSID;
-                        RSS2 = result.level;
-                    } else if (i == 2) {
-                        SSID3 = result.SSID;
-                        MAC3 = result.BSSID;
-                        RSS3 = result.level;
-                    }
-                    i++;
-                }
-            }
-            break;
         }
-
-        updateUI();
     }
 
     /**
@@ -371,16 +312,16 @@ public class AdmActivity extends AppCompatActivity {
      * @param v reference to view
      */
     public void sendRasp(View v) {
-        if ((etDistAp1.getText().toString().matches("")) || (etDistAp2.getText().toString().matches("")) || (etDistAp3.getText().toString().matches(""))) {
+        if ((etPosX.getText().toString().matches("")) || (etPosY.getText().toString().matches("")) || (etPosZ.getText().toString().matches(""))) {
             Toast.makeText(this, "Campo vazio", Toast.LENGTH_SHORT).show();
             return;
         }
-        //Toast.makeText(this, "Enviando Dados", Toast.LENGTH_SHORT).show();
-
-        //Comunicação REST PUT
-        Log.d(tag, "Send Pressed");
-        //restPUT(createJSON());
-        requestPUT(url,createJSON());
+        Toast.makeText(this, "Enviando Dados", Toast.LENGTH_SHORT).show();
+        for (int i = 0; i<3; i++){
+            refresh();
+            requestPUT(url, createJSON(apList));
+        }
+        Log.d(TAG, "Send Pressed");
     }
 
     /**
@@ -388,28 +329,19 @@ public class AdmActivity extends AppCompatActivity {
      *
      * @return JSONObject
      */
-    private JSONObject createJSON(){
+    private JSONObject createJSON(List<Ap> apList){
         JSONObject jsonObj = new JSONObject();
         JSONArray jsonArray = new JSONArray();
-        ArrayList<String> macs = new ArrayList<>();
-        macs.add(MAC1);
-        macs.add(MAC2);
-        macs.add(MAC3);
-        ArrayList<String> rssi = new ArrayList<>();
-        rssi.add(Integer.toString(RSS1));
-        rssi.add(Integer.toString(RSS2));
-        rssi.add(Integer.toString(RSS3));
         try {
             jsonObj.put("type","real");
-            jsonObj.put("type","real");
 
-            for (int i = 0; i < macs.size(); i++) {
+            for (Ap ap : apList) {
                 JSONObject aux = new JSONObject();
-                aux.put("apid",macs.get(i));
-                aux.put("rssi",rssi.get(i));
-                aux.put("posx",etDistAp1.getText().toString());
-                aux.put("posy",etDistAp2.getText().toString());
-                aux.put("posz",etDistAp3.getText().toString());
+                aux.put("apid",ap.getMac());
+                aux.put("rssi",ap.getRssi());
+                aux.put("posx",etPosX.getText().toString());
+                aux.put("posy",etPosY.getText().toString());
+                aux.put("posz",etPosZ.getText().toString());
                 jsonArray.put(aux);
             }
             //Log.i("JSONArray",jsonArray.toString());
@@ -428,23 +360,23 @@ public class AdmActivity extends AppCompatActivity {
      */
     private void requestPUT(String url, final JSONObject jsonObject){
         RequestQueue queue = Volley.newRequestQueue(this);
-        JsonObjectRequest putRequest = new JsonObjectRequest(Request.Method.PUT, url, jsonObject,
+        JsonObjectRequest putRequest = new JsonObjectRequest(Method.PUT, url, jsonObject,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        // response
                         Log.d("Response", response.toString());
+                        Toast.makeText(AdmActivity.this, "Concluido", Toast.LENGTH_SHORT).show();
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         // error
+                        Toast.makeText(AdmActivity.this, "Erro ao enviar", Toast.LENGTH_SHORT).show();
                         Log.d("Error.Response", error.toString());
                     }
                 }
         ) {
-
             @Override
             public Map<String, String> getHeaders() {
                 Map<String, String> headers = new HashMap<>();
@@ -456,7 +388,7 @@ public class AdmActivity extends AppCompatActivity {
             @Override
             public byte[] getBody() {
                 try {
-                    Log.i("json", jsonObject.toString());
+                    //Log.i("json", jsonObject.toString());
                     return jsonObject.toString().getBytes("UTF-8");
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
@@ -464,8 +396,18 @@ public class AdmActivity extends AppCompatActivity {
                 return null;
             }
         };
-
         queue.add(putRequest);
+    }
+
+    /**
+     * Function to request the MAC address of the APs
+     */
+    private void requestGET(){
+        int i = 0;
+        ArrayList<String> listMacs = setListMAC();
+        for (Ap ap : apList){
+            ap.setMac(listMacs.get(i++));
+        }
     }
 
     /**
@@ -503,14 +445,15 @@ public class AdmActivity extends AppCompatActivity {
      * Function that scans the Wi-Fi networks. It makes sure to keep Wi-Fi active.
      */
     private void refresh() {
-        ArrayList macs = setListMAC();
-        //ArrayList ssids = serListSSID();
         wifiMgr = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-        if (!wifiMgr.isWifiEnabled()) wifiMgr.setWifiEnabled(true);
+        if (!wifiMgr.isWifiEnabled())
+            wifiMgr.setWifiEnabled(true);
         wifiMgr.startScan();
-        List<ScanResult> results= wifiMgr.getScanResults();
-        updateInfo(results,macs,0);
-        //updateInfo(results,ssids,1);
+        List<ScanResult> results = wifiMgr.getScanResults();
+        //ArrayList macs = setListMAC();
+        //updateAP(results,macs,0);
+        updateAP(results,apList);
+        updateUI(apList);
         //Log.d("AutoRefresh","Scan Completed");
     }
 
