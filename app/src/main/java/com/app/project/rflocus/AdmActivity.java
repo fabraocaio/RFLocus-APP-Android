@@ -20,7 +20,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -42,26 +41,22 @@ import static com.android.volley.Request.*;
 
 public class AdmActivity extends AppCompatActivity {
 
-    private String TAG = "AdmActivity";
+    protected String TAG = "AdmActivity";
 
-    private String url = "http://192.168.100.18:5500/";
+    protected String url = "http://192.168.100.18:5500/";
 
     private PeriodicScan periodicScan;
     WifiManager wifiMgr;
     private boolean wifiInitStt;
 
-    private Ap ap1;
-    private Ap ap2;
-    private Ap ap3;
     private List<Ap> apList;
 
     private EditText etPosX, etPosY, etPosZ;
     private TextView tvSSID1, tvMAC1, tvRSS1, tvSSID2,
-            tvMAC2, tvRSS2, tvSSID3, tvMAC3, tvRSS3,
-            tvDist1, tvDist2, tvDist3;
-    private Button btnSend;
+            tvMAC2, tvRSS2, tvSSID3, tvMAC3, tvRSS3;
+    protected Button btnSend;
 
-    private int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION;
+    protected int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION;
 
     /**
      * Function to automatically connect to a OPEN Wi-Fi network
@@ -131,7 +126,7 @@ public class AdmActivity extends AppCompatActivity {
      *
      * @return ArrayList with the default MAC address
      */
-    private ArrayList setListMAC() {
+    private ArrayList<String> setListMAC() {
         ArrayList<String> listMacs = new ArrayList<>();
         /*
         // -----------MACS UTFPRWEB---------- //
@@ -227,16 +222,12 @@ public class AdmActivity extends AppCompatActivity {
         tvMAC3 = (TextView) findViewById(R.id.tvMAC3);
         tvRSS3 = (TextView) findViewById(R.id.tvRSS3);
 
-        tvDist1 = (TextView) findViewById(R.id.tvDist1);
-        tvDist2 = (TextView) findViewById(R.id.tvDist2);
-        tvDist3 = (TextView) findViewById(R.id.tvDist3);
-
         btnSend = (Button) findViewById(R.id.btnSend);
 
-        ap1 = new Ap();
-        ap2 = new Ap();
-        ap3 = new Ap();
-        apList = new ArrayList();
+        Ap ap1 = new Ap();
+        Ap ap2 = new Ap();
+        Ap ap3 = new Ap();
+        apList = new ArrayList<>();
         apList.add(ap1);
         apList.add(ap2);
         apList.add(ap3);
@@ -404,7 +395,7 @@ public class AdmActivity extends AppCompatActivity {
      */
     private void requestGET(){
         int i = 0;
-        ArrayList<String> listMacs = setListMAC();
+        ArrayList<String> listMacs = (setListMAC());
         for (Ap ap : apList){
             ap.setMac(listMacs.get(i++));
         }
