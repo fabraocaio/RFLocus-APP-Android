@@ -24,40 +24,26 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.loopj.android.http.JsonHttpResponseHandler;
-import com.loopj.android.http.RequestParams;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import cz.msebera.android.httpclient.Header;
-import cz.msebera.android.httpclient.HttpResponse;
-import cz.msebera.android.httpclient.client.HttpClient;
-import cz.msebera.android.httpclient.client.methods.HttpPut;
-import cz.msebera.android.httpclient.conn.ConnectTimeoutException;
-import cz.msebera.android.httpclient.entity.StringEntity;
-import cz.msebera.android.httpclient.impl.client.DefaultHttpClient;
-import cz.msebera.android.httpclient.message.BasicHeader;
-import cz.msebera.android.httpclient.protocol.HTTP;
 
 public class AdmActivity extends AppCompatActivity {
 
     private String tag = "AdmActivity";
+
+    private String url = "http://192.168.100.18:5500/";
+
     private PeriodicScan periodicScan;
     WifiManager wifiMgr;
     private boolean wifiInitStt;
@@ -74,19 +60,19 @@ public class AdmActivity extends AppCompatActivity {
     private TextView tvSSID1, tvMAC1, tvRSS1, tvSSID2,
             tvMAC2, tvRSS2, tvSSID3, tvMAC3, tvRSS3,
             tvDist1, tvDist2, tvDist3;
+    private Button btnSend;
 
-    Button btnSend;
-    int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION;
+    private int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION;
 
     //RequestQueue requestQueue = Volley.newRequestQueue(this);
     //ArrayList<String> listMAC = new ArrayList<>();
 
     /**
-     * Função para conectar automaticamente em uma rede Wi-Fi
+     * Function to automatically connect to a OPEN Wi-Fi network
      *
      * @param networkSSID String with the SSID of the desire network
      */
-    private void autoConnectOpen(String networkSSID) {
+    private void autoConnectOPEN(String networkSSID) {
         WifiConfiguration conf = new WifiConfiguration();
         conf.SSID = "\"" + networkSSID + "\"";   // Please note the quotes. String should contain ssid in quotes
         //For OPEN password
@@ -98,7 +84,7 @@ public class AdmActivity extends AppCompatActivity {
     }
 
     /**
-     * Função para conectar automaticamente em uma rede Wi-Fi
+     * Function to automatically connect to a WPA Wi-Fi network
      *
      * @param networkSSID String with the SSID of the desire network
      * @param networkPass String with the password of the desire network
@@ -114,6 +100,12 @@ public class AdmActivity extends AppCompatActivity {
         Log.d("AutoConnect", "WPA");
     }
 
+    /**
+     * Function to automatically connect to a WEP Wi-Fi network
+     *
+     * @param networkSSID String with the SSID of the desire network
+     * @param networkPass String with the password of the desire network
+     */
     private void autoConnectWEP(String networkSSID, String networkPass) {
         WifiConfiguration conf = new WifiConfiguration();
         conf.SSID = "\"" + networkSSID + "\"";   // Please note the quotes. String should contain ssid in quotes
@@ -126,7 +118,7 @@ public class AdmActivity extends AppCompatActivity {
     }
 
     /**
-     * Função que retorna uma lista de enredeços MACs para teste
+     * Function that returns a list of MACs for testing
      *
      * @return ArrayList with the default MAC address
      */
@@ -140,16 +132,18 @@ public class AdmActivity extends AppCompatActivity {
         // ---------------------------------- //
         */
 
+        // -----------MACS RFLocus---------- //
         listMacs.add("64:ae:0c:65:7a:71");
         listMacs.add("64:ae:0c:be:71:03");
         listMacs.add("64:ae:0c:91:76:31");
         //listMacs.add("2c:55:d3:b0:1c:c4");
+        // ---------------------------------- //
 
         return listMacs;
     }
 
     /**
-     * Função que retorna uma lista de SSIDs para testes
+     * Function that returns a list of SSIDs for tests
      *
      * @return ArrayList with the default SSID
      */
@@ -162,7 +156,7 @@ public class AdmActivity extends AppCompatActivity {
     }
 
     /**
-     * Função para requisitar ao usuário permição para acessar Fine location
+     * Function to request the user permission to access Fine location
      */
     private void permissionRequest(){
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
@@ -235,9 +229,10 @@ public class AdmActivity extends AppCompatActivity {
 
         btnSend = (Button) findViewById(R.id.btnSend);
 
-        //autoConnect("UTFPRWEB");
-        //autoConnect("narsil","1119072205");
-        //autoConnect("FUNBOX-BOARDGAME-CAFE","Fb-4130400780");
+        //autoConnectOPEN("UTFPRWEB");
+        //autoConnectWAP("narsil","1119072205");
+        //autoConnectWAP("FUNBOX-BOARDGAME-CAFE","Fb-4130400780");
+        //autoConnectWEP("RFLocus","oficina3");
         setAps();
         startRefresh();
     }
@@ -277,7 +272,7 @@ public class AdmActivity extends AppCompatActivity {
     }
 
     /**
-     * Função para atualizar as informações exibidas na interface do usuário
+     * Function to update the information displayed in the user interface
      */
     public void updateUI() {
         tvSSID1.setText(SSID1);
@@ -298,7 +293,7 @@ public class AdmActivity extends AppCompatActivity {
     }
 
     /**
-     * Função para atualizar as variaveis globais referentes aos Aps
+     * Function to update global variables for APs
      *
      * @param results a list of ScanResult
      * @param list    an ArrayList with the MAC Address or SSID
@@ -371,7 +366,7 @@ public class AdmActivity extends AppCompatActivity {
     }
 
     /**
-     * Função da evento gerado ao clicar no botão Enviar
+     * Event function generated by clicking the Send button
      *
      * @param v reference to view
      */
@@ -385,43 +380,40 @@ public class AdmActivity extends AppCompatActivity {
         //Comunicação REST PUT
         Log.d(tag, "Send Pressed");
         //restPUT(createJSON());
-        requestPUT(createJSON());
+        requestPUT(url,createJSON());
     }
 
     /**
-     * Função para gerar o objeto JSON contendo os mac, rssi e distancias
+     * Function to generate the JSON object containing the mac, rssi and coordinates X Y Z
      *
      * @return JSONObject
      */
     private JSONObject createJSON(){
         JSONObject jsonObj = new JSONObject();
-        Map<String, String> map = new HashMap<>();
-        Map<String, String> map2 = new HashMap<>();
-        Map<String, String> map3 = new HashMap<>();
-        String array = "";
+        JSONArray jsonArray = new JSONArray();
+        ArrayList<String> macs = new ArrayList<>();
+        macs.add(MAC1);
+        macs.add(MAC2);
+        macs.add(MAC3);
+        ArrayList<String> rssi = new ArrayList<>();
+        rssi.add(Integer.toString(RSS1));
+        rssi.add(Integer.toString(RSS2));
+        rssi.add(Integer.toString(RSS3));
         try {
             jsonObj.put("type","real");
             jsonObj.put("type","real");
 
-            map.put("\"apid\"","\""+MAC1+"\" ");
-            map.put("rssi", Integer.toString(RSS1));
-            map.put("dist", etDistAp2.getText().toString());
-            array=map.toString();
-
-            //jsonObj.put(MAC1, map);
-
-            map.put("apid",MAC2);
-            map.put("rssi", Integer.toString(RSS2));
-            map.put("dist", etDistAp2.getText().toString());
-            //jsonObj.put(MAC2, map);
-            array+=map.toString();
-
-            map.put("apid",MAC3);
-            map.put("rssi", Integer.toString(RSS3));
-            map.put("dist", etDistAp3.getText().toString());
-            array+=map.toString();
-            //jsonObj.put(MAC3, map);
-            jsonObj.put("data",array);
+            for (int i = 0; i < macs.size(); i++) {
+                JSONObject aux = new JSONObject();
+                aux.put("apid",macs.get(i));
+                aux.put("rssi",rssi.get(i));
+                aux.put("posx",etDistAp1.getText().toString());
+                aux.put("posy",etDistAp2.getText().toString());
+                aux.put("posz",etDistAp3.getText().toString());
+                jsonArray.put(aux);
+            }
+            //Log.i("JSONArray",jsonArray.toString());
+            jsonObj.put("data",jsonArray);
         } catch(JSONException e) {
             e.printStackTrace();
         }
@@ -429,11 +421,12 @@ public class AdmActivity extends AppCompatActivity {
     }
 
     /**
-     * FUnc
+     * Function to create a HTTP PUT request to a server URL
+     *
+     * @param url        server to be connect
      * @param jsonObject to be send
      */
-    private void requestPUT(final JSONObject jsonObject){
-        String url = "http://192.168.0.1:5500/";
+    private void requestPUT(String url, final JSONObject jsonObject){
         RequestQueue queue = Volley.newRequestQueue(this);
         JsonObjectRequest putRequest = new JsonObjectRequest(Request.Method.PUT, url, jsonObject,
                 new Response.Listener<JSONObject>() {
@@ -476,7 +469,7 @@ public class AdmActivity extends AppCompatActivity {
     }
 
     /**
-     * Função para parar a thread periódica
+     * Function to stop the periodic thread
      */
     private void stopRefresh() {
         if(periodicScan != null)
@@ -485,7 +478,7 @@ public class AdmActivity extends AppCompatActivity {
     }
 
     /**
-     * Função para iniciar a thread preriódica
+     * Function to start the periodic thread
      */
     private void startRefresh() {
         //periodicScan classe de tarefa assincrona
@@ -507,7 +500,7 @@ public class AdmActivity extends AppCompatActivity {
     };
 
     /**
-     * Função que realiza o scan das redes WiFi. Ela se certifica de manter o WiFi ativo
+     * Function that scans the Wi-Fi networks. It makes sure to keep Wi-Fi active.
      */
     private void refresh() {
         ArrayList macs = setListMAC();
@@ -521,7 +514,9 @@ public class AdmActivity extends AppCompatActivity {
         //Log.d("AutoRefresh","Scan Completed");
     }
 
-
+    /**
+     * Class that implements AsyncTask
+     */
     private class PeriodicScan extends AsyncTask<Void, Void, Void> {
 
         boolean keepRunning = true;
