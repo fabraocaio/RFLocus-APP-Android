@@ -43,7 +43,7 @@ public class AdmActivity extends AppCompatActivity {
 
     private static String TAG = "AdmActivity";
 
-    protected String url = "http://192.168.100.18:5500/";
+    protected String url = "http://192.168.0.1:5500/";
 
     private PeriodicScan periodicScan;
     WifiManager wifiMgr;
@@ -136,21 +136,22 @@ public class AdmActivity extends AppCompatActivity {
         // ---------------------------------- //
         */
 
-        /*
-        // -----------MACS RFLocus---------- //
-        listMacs.add("6a:39:a3:67:51:8e");
-        listMacs.add("df:11:bb:8f:a8:7a");
-        listMacs.add("19:b3:82:86:06:6e");
-        //listMacs.add("c7:45:50:51:06:d1");
-        // ---------------------------------- //
-        */
 
+        // -----------MACS RFLocus---------- //
+        listMacs.add("a2:20:a6:14:ea:ec");
+        listMacs.add("a2:20:a6:17:37:d8");
+        //listMacs.add("a2:a0:a6:");
+        listMacs.add("b8:27:eb:a3:7d:75");
+        // ---------------------------------- //
+
+
+        /*
         // ----------MACS SafeHouse--------- //
         listMacs.add("9c:7d:a3:eb:95:28");
         listMacs.add("00:04:df:07:b5:eb");
         listMacs.add("20:10:7a:e0:37:f0");
         // ---------------------------------- //
-
+        */
 
         return listMacs;
     }
@@ -228,8 +229,8 @@ public class AdmActivity extends AppCompatActivity {
         apList = new ArrayList<>();
 
         //autoConnectOPEN("UTFPRWEB");
-        //autoConnectWAP("FUNBOX-BOARDGAME-CAFE","Fb-4130400780");
-        //autoConnectWEP("RFLocus","oficina3");
+        //autoConnectWPA("FUNBOX-BOARDGAME-CAFE","Fb-4130400780");
+        //autoConnectWPA("RFLocus","oficina3");
         requestGET();
         startRefresh();
     }
@@ -282,7 +283,7 @@ public class AdmActivity extends AppCompatActivity {
     private void updateAP(List<ScanResult> results, List<Ap> apList){
         for (ScanResult result : results) {
             for (Ap ap : apList) {
-                ap.setRssi(0);
+                //ap.setRssi(0);
                 if (ap.getMac().equals(result.BSSID)){
                     ap.setSsid(result.SSID);
                     ap.setRssi(result.level);
@@ -372,7 +373,7 @@ public class AdmActivity extends AppCompatActivity {
             @Override
             public byte[] getBody() {
                 try {
-                    //Log.i("json", jsonObject.toString());
+                    Log.i("json", jsonObject.toString());
                     return jsonObject.toString().getBytes("UTF-8");
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
