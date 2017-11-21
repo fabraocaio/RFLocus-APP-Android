@@ -41,7 +41,7 @@ import static com.android.volley.Request.*;
 
 public class AdmActivity extends AppCompatActivity {
 
-    protected String TAG = "AdmActivity";
+    private static String TAG = "AdmActivity";
 
     protected String url = "http://192.168.100.18:5500/";
 
@@ -54,9 +54,9 @@ public class AdmActivity extends AppCompatActivity {
     private EditText etPosX, etPosY, etPosZ;
     private TextView tvSSID1, tvMAC1, tvRSS1, tvSSID2,
             tvMAC2, tvRSS2, tvSSID3, tvMAC3, tvRSS3;
-    protected Button btnSend;
+    public Button btnSend;
 
-    protected int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION;
+    int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION;
 
     /**
      * Function to automatically connect to a OPEN Wi-Fi network
@@ -136,20 +136,21 @@ public class AdmActivity extends AppCompatActivity {
         // ---------------------------------- //
         */
 
-        // -----------MACS RFLocus---------- //
-        listMacs.add("64:ae:0c:65:7a:71");
-        listMacs.add("64:ae:0c:be:71:03");
-        listMacs.add("64:ae:0c:91:76:31");
-        listMacs.add("2c:55:d3:b0:1c:c4");
-        // ---------------------------------- //
-
         /*
+        // -----------MACS RFLocus---------- //
+        listMacs.add("6a:39:a3:67:51:8e");
+        listMacs.add("df:11:bb:8f:a8:7a");
+        listMacs.add("19:b3:82:86:06:6e");
+        //listMacs.add("c7:45:50:51:06:d1");
+        // ---------------------------------- //
+        */
+
         // ----------MACS SafeHouse--------- //
         listMacs.add("9c:7d:a3:eb:95:28");
         listMacs.add("00:04:df:07:b5:eb");
         listMacs.add("20:10:7a:e0:37:f0");
         // ---------------------------------- //
-        */
+
 
         return listMacs;
     }
@@ -224,20 +225,12 @@ public class AdmActivity extends AppCompatActivity {
 
         btnSend = (Button) findViewById(R.id.btnSend);
 
-        Ap ap1 = new Ap();
-        Ap ap2 = new Ap();
-        Ap ap3 = new Ap();
         apList = new ArrayList<>();
-        apList.add(ap1);
-        apList.add(ap2);
-        apList.add(ap3);
 
         //autoConnectOPEN("UTFPRWEB");
-        //autoConnectWAP("narsil","1119072205");
         //autoConnectWAP("FUNBOX-BOARDGAME-CAFE","Fb-4130400780");
         //autoConnectWEP("RFLocus","oficina3");
         requestGET();
-        //setAps();
         startRefresh();
     }
 
@@ -289,6 +282,7 @@ public class AdmActivity extends AppCompatActivity {
     private void updateAP(List<ScanResult> results, List<Ap> apList){
         for (ScanResult result : results) {
             for (Ap ap : apList) {
+                ap.setRssi(0);
                 if (ap.getMac().equals(result.BSSID)){
                     ap.setSsid(result.SSID);
                     ap.setRssi(result.level);
@@ -312,6 +306,7 @@ public class AdmActivity extends AppCompatActivity {
             refresh();
             requestPUT(url, createJSON(apList));
         }
+        Toast.makeText(AdmActivity.this, "Concluído", Toast.LENGTH_SHORT).show();
         Log.d(TAG, "Send Pressed");
     }
 
@@ -356,7 +351,6 @@ public class AdmActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(JSONObject response) {
                         Log.d("Response", response.toString());
-                        Toast.makeText(AdmActivity.this, "Concluido", Toast.LENGTH_SHORT).show();
                     }
                 },
                 new Response.ErrorListener() {
@@ -364,7 +358,6 @@ public class AdmActivity extends AppCompatActivity {
                     public void onErrorResponse(VolleyError error) {
                         // error
                         Toast.makeText(AdmActivity.this, "Erro ao enviar", Toast.LENGTH_SHORT).show();
-                        Log.d("Error.Response", error.toString());
                     }
                 }
         ) {
@@ -394,10 +387,10 @@ public class AdmActivity extends AppCompatActivity {
      * Function to request the MAC address of the APs
      */
     private void requestGET(){
-        int i = 0;
-        ArrayList<String> listMacs = (setListMAC());
-        for (Ap ap : apList){
-            ap.setMac(listMacs.get(i++));
+        ArrayList<String> listMacs = setListMAC();
+        for (String mac : listMacs) {
+            Ap ap = new Ap(mac);
+            apList.add(ap);
         }
     }
 
@@ -441,8 +434,6 @@ public class AdmActivity extends AppCompatActivity {
             wifiMgr.setWifiEnabled(true);
         wifiMgr.startScan();
         List<ScanResult> results = wifiMgr.getScanResults();
-        //ArrayList macs = setListMAC();
-        //updateAP(results,macs,0);
         updateAP(results,apList);
         updateUI(apList);
         //Log.d("AutoRefresh","Scan Completed");

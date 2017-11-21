@@ -34,11 +34,13 @@
         tools:layout_editor_absoluteX="377dp" />
 
     <android.support.constraint.Guideline
-        android:id="@+id/guidelineH10"
+        android:id="@+id/guidelineH05"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.05" />
+        app:layout_constraintGuide_percent="0.05"
+        tools:layout_editor_absoluteY="26dp"
+        tools:layout_editor_absoluteX="0dp" />
 
     <TextView
         android:id="@+id/tvSSID1"
@@ -47,10 +49,10 @@
         android:layout_marginLeft="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:text="SSID AP1"
+        android:text="@string/ssid_ap1"
         android:textStyle="bold"
         app:layout_constraintLeft_toLeftOf="@+id/guidelineV2"
-        app:layout_constraintTop_toTopOf="@+id/guidelineH10" />
+        app:layout_constraintTop_toTopOf="@+id/guidelineH05" />
 
     <TextView
         android:id="@+id/tvMAC1"
@@ -58,7 +60,7 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="8dp"
         android:layout_marginStart="8dp"
-        android:text="MAC AP1"
+        android:text="@string/mac_ap1"
         app:layout_constraintLeft_toLeftOf="@+id/guidelineV2"
         app:layout_constraintTop_toBottomOf="@+id/tvSSID1" />
 
@@ -68,17 +70,19 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
-        android:text="RSS AP1"
+        android:text="@string/rss_ap1"
         app:layout_constraintRight_toLeftOf="@+id/guidelineV98"
-        app:layout_constraintTop_toTopOf="@+id/guidelineH10"
+        app:layout_constraintTop_toTopOf="@+id/guidelineH05"
         android:layout_marginTop="25dp" />
 
     <android.support.constraint.Guideline
-        android:id="@+id/guidelineH20"
+        android:id="@+id/guidelineH15"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.15" />
+        app:layout_constraintGuide_percent="0.15"
+        tools:layout_editor_absoluteY="77dp"
+        tools:layout_editor_absoluteX="0dp" />
 
     <TextView
         android:id="@+id/tvSSID2"
@@ -86,10 +90,10 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="8dp"
         android:layout_marginStart="8dp"
-        android:text="SSID AP2"
+        android:text="@string/ssid_ap2"
         android:textStyle="bold"
         app:layout_constraintLeft_toLeftOf="@+id/guidelineV2"
-        app:layout_constraintTop_toTopOf="@+id/guidelineH20"
+        app:layout_constraintTop_toTopOf="@+id/guidelineH15"
         android:layout_marginTop="8dp" />
 
     <TextView
@@ -98,7 +102,7 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="8dp"
         android:layout_marginStart="8dp"
-        android:text="MAC AP2"
+        android:text="@string/mac_ap2"
         app:layout_constraintLeft_toLeftOf="@+id/guidelineV2"
         app:layout_constraintTop_toBottomOf="@+id/tvSSID2" />
 
@@ -109,16 +113,18 @@
         android:layout_marginEnd="9dp"
         android:layout_marginRight="9dp"
         android:layout_marginTop="25dp"
-        android:text="RSS AP2"
+        android:text="@string/rss_ap2"
         app:layout_constraintRight_toLeftOf="@+id/guidelineV98"
-        app:layout_constraintTop_toTopOf="@+id/guidelineH20" />
+        app:layout_constraintTop_toTopOf="@+id/guidelineH15" />
 
     <android.support.constraint.Guideline
-        android:id="@+id/guidelineH30"
+        android:id="@+id/guidelineH25"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.25" />
+        app:layout_constraintGuide_percent="0.25"
+        tools:layout_editor_absoluteY="128dp"
+        tools:layout_editor_absoluteX="0dp" />
 
     <TextView
         android:id="@+id/tvSSID3"
@@ -127,10 +133,10 @@
         android:layout_marginLeft="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:text="SSID AP3"
+        android:text="@string/ssid_ap3"
         android:textStyle="bold"
         app:layout_constraintLeft_toLeftOf="@+id/guidelineV2"
-        app:layout_constraintTop_toTopOf="@+id/guidelineH30" />
+        app:layout_constraintTop_toTopOf="@+id/guidelineH25" />
 
     <TextView
         android:id="@+id/tvMAC3"
@@ -138,7 +144,7 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="8dp"
         android:layout_marginStart="8dp"
-        android:text="MAC AP3"
+        android:text="@string/mac_ap3"
         app:layout_constraintLeft_toLeftOf="@+id/guidelineV2"
         app:layout_constraintTop_toBottomOf="@+id/tvSSID3" />
 
@@ -148,26 +154,28 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
-        android:text="RSS AP3"
+        android:text="@string/rss_ap3"
         app:layout_constraintRight_toLeftOf="@+id/guidelineV98"
-        app:layout_constraintTop_toTopOf="@+id/guidelineH30"
+        app:layout_constraintTop_toTopOf="@+id/guidelineH25"
         android:layout_marginTop="25dp" />
 
     <android.support.constraint.Guideline
-        android:id="@+id/guidelineH40"
+        android:id="@+id/guidelineH35"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.4"
-        tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="205dp" />
+        app:layout_constraintGuide_percent="0.35"
+        tools:layout_editor_absoluteY="179dp"
+        tools:layout_editor_absoluteX="0dp" />
 
     <android.support.constraint.Guideline
         android:id="@+id/guidelineH50"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.43" />
+        app:layout_constraintGuide_percent="0.55"
+        tools:layout_editor_absoluteY="281dp"
+        tools:layout_editor_absoluteX="0dp" />
 
     <TextView
         android:id="@+id/tvDist1"
@@ -176,7 +184,7 @@
         android:layout_marginLeft="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:text="Posição X:"
+        android:text="@string/posX"
         app:layout_constraintLeft_toLeftOf="@+id/guidelineV2"
         app:layout_constraintTop_toTopOf="@+id/guidelineH50" />
 
@@ -189,14 +197,13 @@
         android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
         android:ems="10"
-        android:hint="123"
+        android:hint="@string/num"
         android:inputType="number"
         app:layout_constraintBottom_toBottomOf="@+id/tvDist1"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintLeft_toRightOf="@+id/tvDist1"
         app:layout_constraintRight_toLeftOf="@+id/guidelineV50"
-        app:layout_constraintTop_toTopOf="@+id/tvDist1"
-        app:layout_constraintVertical_bias="0.5" />
+        app:layout_constraintTop_toTopOf="@+id/tvDist1" />
 
     <TextView
         android:id="@+id/tvCM1"
@@ -204,11 +211,10 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="5dp"
         android:layout_marginStart="5dp"
-        android:text="(cm)"
+        android:text="@string/cm"
         app:layout_constraintBottom_toBottomOf="@+id/etPosX"
         app:layout_constraintLeft_toRightOf="@+id/etPosX"
-        app:layout_constraintTop_toTopOf="@+id/etPosX"
-        app:layout_constraintVertical_bias="0.5" />
+        app:layout_constraintTop_toTopOf="@+id/etPosX" />
 
     <TextView
         android:id="@+id/tvDist2"
@@ -217,7 +223,7 @@
         android:layout_marginLeft="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="32dp"
-        android:text="Posição Y:"
+        android:text="@string/posY"
         app:layout_constraintLeft_toLeftOf="@+id/guidelineV2"
         app:layout_constraintTop_toBottomOf="@+id/tvDist1" />
 
@@ -230,26 +236,24 @@
         android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
         android:ems="10"
-        android:hint="123"
+        android:hint="@string/num"
         android:inputType="number"
         app:layout_constraintBottom_toBottomOf="@+id/tvDist2"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintLeft_toRightOf="@+id/tvDist2"
         app:layout_constraintRight_toLeftOf="@+id/guidelineV50"
-        app:layout_constraintTop_toTopOf="@+id/tvDist2"
-        app:layout_constraintVertical_bias="0.5" />
+        app:layout_constraintTop_toTopOf="@+id/tvDist2" />
 
     <TextView
         android:id="@+id/tvCM2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="8dp"
+        android:layout_marginLeft="5dp"
         android:layout_marginStart="5dp"
-        android:text="(cm)"
+        android:text="@string/cm"
         app:layout_constraintBottom_toBottomOf="@+id/etPosY"
         app:layout_constraintLeft_toRightOf="@+id/etPosY"
-        app:layout_constraintTop_toTopOf="@+id/etPosY"
-        app:layout_constraintVertical_bias="0.5" />
+        app:layout_constraintTop_toTopOf="@+id/etPosY" />
 
     <TextView
         android:id="@+id/tvDist3"
@@ -258,7 +262,7 @@
         android:layout_marginLeft="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="32dp"
-        android:text="Posição Z:"
+        android:text="@string/posz"
         app:layout_constraintLeft_toLeftOf="@+id/guidelineV2"
         app:layout_constraintTop_toBottomOf="@+id/tvDist2" />
 
@@ -269,12 +273,11 @@
         android:layout_marginLeft="8dp"
         android:layout_marginStart="8dp"
         android:ems="10"
-        android:hint="123"
+        android:hint="@string/num"
         android:inputType="number"
         app:layout_constraintBottom_toBottomOf="@+id/tvDist3"
         app:layout_constraintLeft_toRightOf="@+id/tvDist3"
         app:layout_constraintTop_toTopOf="@+id/tvDist3"
-        app:layout_constraintVertical_bias="0.5"
         app:layout_constraintRight_toLeftOf="@+id/guidelineV50"
         android:layout_marginRight="8dp"
         android:layout_marginEnd="8dp"
@@ -286,11 +289,10 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="5dp"
         android:layout_marginStart="5dp"
-        android:text="(cm)"
+        android:text="@string/cm"
         app:layout_constraintBottom_toBottomOf="@+id/etPosZ"
         app:layout_constraintLeft_toRightOf="@+id/etPosZ"
-        app:layout_constraintTop_toTopOf="@+id/etPosZ"
-        app:layout_constraintVertical_bias="0.5" />
+        app:layout_constraintTop_toTopOf="@+id/etPosZ" />
 
     <Button
         android:id="@+id/btnSend"
@@ -299,15 +301,18 @@
         android:layout_marginBottom="8dp"
         android:layout_marginRight="8dp"
         android:onClick="sendRasp"
-        android:text="Enviar"
+        android:text="@string/enviar"
         app:layout_constraintBottom_toTopOf="@+id/guidelineH80"
-        app:layout_constraintRight_toLeftOf="@+id/guidelineV98" />
+        app:layout_constraintRight_toLeftOf="@+id/guidelineV98"
+        android:layout_marginEnd="8dp" />
 
     <android.support.constraint.Guideline
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/guidelineH80"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.85" />
+        app:layout_constraintGuide_percent="0.85"
+        tools:layout_editor_absoluteY="435dp"
+        tools:layout_editor_absoluteX="0dp" />
 
 </android.support.constraint.ConstraintLayout>

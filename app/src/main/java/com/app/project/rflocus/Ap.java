@@ -5,39 +5,29 @@ class Ap {
     private String mac;
     private int rssi;
 
-    public Ap(){
+    Ap(String mac){
         this.ssid="RFLocus";
-        this.mac="FF:FF:FF:FF:FF:FF";
+        this.mac=mac;
         this.rssi=0;
     }
 
-    public Ap(String ssid, String mac, int rssi) {
-        this.ssid = ssid;
-        this.mac = mac;
-        this.rssi = rssi;
-    }
-
-    public String getSsid() {
+    String getSsid() {
         return ssid;
     }
 
-    public void setSsid(String ssid) {
+    void setSsid(String ssid) {
         this.ssid = ssid;
     }
 
-    public String getMac() {
+    String getMac() {
         return mac;
     }
 
-    public void setMac(String mac) {
-        this.mac = mac;
-    }
-
-    public int getRssi() {
+    int getRssi() {
         return rssi;
     }
 
-    public void setRssi(int rssi) {
+    void setRssi(int rssi) {
         this.rssi = rssi;
     }
 }
