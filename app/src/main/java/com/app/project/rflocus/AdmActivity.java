@@ -1,13 +1,16 @@
 package com.app.project.rflocus;
 
 import android.Manifest;
+import android.app.Application;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiConfiguration;
+import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -30,6 +33,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,6 +47,8 @@ import static com.android.volley.Request.*;
 public class AdmActivity extends AppCompatActivity {
 
     private static String TAG = "AdmActivity";
+    private static String network = "RFLocus";
+    private static String password = "oficina3";
 
     protected String url = "http://192.168.0.1:5500/";
 
@@ -58,6 +65,83 @@ public class AdmActivity extends AppCompatActivity {
 
     int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION;
 
+	/**
+     * Function to check if the device still connected to a network
+     * @param ssid  Network SSID to be checked
+     * @return boolean
+     */
+    private boolean isConnected(String ssid){
+        wifiMgr = (WifiManager) getApplicationContext().getSystemService (Context.WIFI_SERVICE);
+        WifiInfo wifiInfo = wifiMgr.getConnectionInfo();
+        return wifiInfo.getSSID().equals("\""+ssid+"\"");
+    }
+
+	/**
+	* Class that manager the log saving to the device's storage directory
+	*/
+    public static class CreateLog extends Application {
+        private static String TAG = "CreateLog";
+
+        /**
+         * Function to save the logcat into files on the device's storage directory
+         */
+        private static void createLog() {
+            if (isExternalStorageWritable()) {
+
+                //DateFormat df = new SimpleDateFormat.getDateTimeInstance("ddmmyy","hhmm");
+                File appDirectory = new File(Environment.getExternalStorageDirectory() + "/rflocusUser");
+                File logDirectory = new File(appDirectory + "/log");
+                File logFile1 = new File(logDirectory, "logcat_default" + System.currentTimeMillis() + ".txt");
+                File logFile2 = new File(logDirectory, "logcat_debug" + System.currentTimeMillis() + ".txt");
+
+                if (!appDirectory.exists()) {
+                    appDirectory.mkdir();
+                    Log.d(TAG,"Creating app directory");
+                }
+
+                if (!logDirectory.exists()) {
+                    logDirectory.mkdir();
+                    Log.d(TAG,"Creating log directory");
+                }
+
+                try {
+                    Process process = Runtime.getRuntime().exec("logcat -c");
+                    process = Runtime.getRuntime().exec("logcat -f " + logFile1 + " *:I");
+                    process = Runtime.getRuntime().exec("logcat -f " + logFile2 + " *:D");
+                    Log.d(TAG,"Log Saved");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            } else if (isExternalStorageReadable()) {
+                Log.e(TAG, "External Storage only readable");
+            } else {
+                Log.e(TAG, "External Storage only accessible");
+            }
+        }
+
+        /***
+         * Checks if external storage is available for read and write
+         *
+         * @return boolean
+         */
+        public static boolean isExternalStorageWritable() {
+            String state = Environment.getExternalStorageState();
+            return Environment.MEDIA_MOUNTED.equals(state);
+        }
+
+        /***
+         * Checks if external storage is available to at least read
+         *
+         * @return boolean
+         */
+        public static boolean isExternalStorageReadable() {
+            String state = Environment.getExternalStorageState();
+            return Environment.MEDIA_MOUNTED.equals(state) ||
+                    Environment.MEDIA_MOUNTED_READ_ONLY.equals(state);
+        }
+    }
+	
     /**
      * Function to automatically connect to a OPEN Wi-Fi network
      *
@@ -136,22 +220,13 @@ public class AdmActivity extends AppCompatActivity {
         // ---------------------------------- //
         */
 
-
         // -----------MACS RFLocus---------- //
         listMacs.add("a2:20:a6:14:ea:ec");
         listMacs.add("a2:20:a6:17:37:d8");
-        //listMacs.add("a2:a0:a6:");
-        listMacs.add("b8:27:eb:a3:7d:75");
+        listMacs.add("a2:20:a6:19:10:45");
+        //listMacs.add("a2:20:a6:19:0E:30");
+        //listMacs.add("b8:27:eb:a3:7d:75");
         // ---------------------------------- //
-
-
-        /*
-        // ----------MACS SafeHouse--------- //
-        listMacs.add("9c:7d:a3:eb:95:28");
-        listMacs.add("00:04:df:07:b5:eb");
-        listMacs.add("20:10:7a:e0:37:f0");
-        // ---------------------------------- //
-        */
 
         return listMacs;
     }
@@ -170,6 +245,11 @@ public class AdmActivity extends AppCompatActivity {
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                         MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
             }
+        }
+
+        if(ContextCompat.checkSelfPermission(this,Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
         }
     }
 
@@ -205,6 +285,8 @@ public class AdmActivity extends AppCompatActivity {
             permissionRequest();
         }
 
+        CreateLog.createLog();
+
         wifiMgr = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         wifiInitStt = wifiMgr.isWifiEnabled();
 
@@ -228,11 +310,13 @@ public class AdmActivity extends AppCompatActivity {
 
         apList = new ArrayList<>();
 
-        //autoConnectOPEN("UTFPRWEB");
-        //autoConnectWPA("FUNBOX-BOARDGAME-CAFE","Fb-4130400780");
-        //autoConnectWPA("RFLocus","oficina3");
+        autoConnectWPA(network,password);
         requestGET();
         startRefresh();
+        Log.i("LogSave","apid1,rssi1,apid2,rssi2,apid3,rssi3,posX,posY,posZ");
+        //Log.i("LogSave","apid1,rssi1,apid2,rssi2,apid3,rssi3,apid4,rssi4,posX,posY,posZ");
+        //Log.i("LogSave","apid1,rssi1,apid2,rssi2,apid3,rssi3,apid4,rssi4,apid5,rssi5,posX,posY,posZ");
+        Log.d(TAG,"onCreate");
     }
 
     @Override
@@ -281,9 +365,12 @@ public class AdmActivity extends AppCompatActivity {
      * @param apList  List with the MAC's Address
      */
     private void updateAP(List<ScanResult> results, List<Ap> apList){
+        for (Ap ap : apList){
+            ap.setRssi(0);
+        }
+
         for (ScanResult result : results) {
             for (Ap ap : apList) {
-                //ap.setRssi(0);
                 if (ap.getMac().equals(result.BSSID)){
                     ap.setSsid(result.SSID);
                     ap.setRssi(result.level);
@@ -295,20 +382,44 @@ public class AdmActivity extends AppCompatActivity {
     /**
      * Event function generated by clicking the Send button
      *
-     * @param v reference to view
+     * @param v View's reference
      */
     public void sendRasp(View v) {
+        Log.d(TAG, "Send Pressed");
         if ((etPosX.getText().toString().matches("")) || (etPosY.getText().toString().matches("")) || (etPosZ.getText().toString().matches(""))) {
-            Toast.makeText(this, "Campo vazio", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Campo vázio", Toast.LENGTH_SHORT).show();
+            Log.d(TAG,"Campo vázio");
             return;
         }
-        Toast.makeText(this, "Enviando Dados", Toast.LENGTH_SHORT).show();
-        for (int i = 0; i<3; i++){
-            refresh();
+        logSave(apList);
+        if (isConnected(network)) {
             requestPUT(url, createJSON(apList));
+            Toast.makeText(AdmActivity.this, "Enviado", Toast.LENGTH_SHORT).show();
+            Log.d(TAG,"Enviando request");
         }
-        Toast.makeText(AdmActivity.this, "Concluído", Toast.LENGTH_SHORT).show();
-        Log.d(TAG, "Send Pressed");
+        else {
+            Toast.makeText(AdmActivity.this, "Reconectando", Toast.LENGTH_SHORT).show();
+            autoConnectWPA(network,password);
+            Log.d(TAG,"Reconectando à rede");
+        }
+    }
+
+	 /**
+     * Function to generated the AP information to a log format
+     *
+     * @param apList List of Ap's
+     */
+    private void logSave(List<Ap> apList){
+        String log = "";
+        for (Ap ap : apList){
+            log += ap.getMac() +",";
+            log += ap.getRssi()+",";
+        }
+        log += etPosX.getText().toString()+",";
+        log += etPosY.getText().toString()+",";
+        log += etPosZ.getText().toString();
+
+        Log.i("LogSave",log);
     }
 
     /**
@@ -331,7 +442,7 @@ public class AdmActivity extends AppCompatActivity {
                 aux.put("posz",etPosZ.getText().toString());
                 jsonArray.put(aux);
             }
-            //Log.i("JSONArray",jsonArray.toString());
+            Log.d("CreateJSONArray",jsonArray.toString());
             jsonObj.put("data",jsonArray);
         } catch(JSONException e) {
             e.printStackTrace();
@@ -351,13 +462,13 @@ public class AdmActivity extends AppCompatActivity {
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        Log.d("Response", response.toString());
+                        Log.d("ResponseOK", response.toString());
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        // error
+                        Log.d("ResponseError",error.toString());
                         Toast.makeText(AdmActivity.this, "Erro ao enviar", Toast.LENGTH_SHORT).show();
                     }
                 }
@@ -373,7 +484,7 @@ public class AdmActivity extends AppCompatActivity {
             @Override
             public byte[] getBody() {
                 try {
-                    Log.i("json", jsonObject.toString());
+                    //Log.i("BodyJSON", jsonObject.toString());
                     return jsonObject.toString().getBytes("UTF-8");
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
@@ -452,7 +563,7 @@ public class AdmActivity extends AppCompatActivity {
             while(keepRunning) {
                 runOnUiThread(doRefresh);
                 try {
-                    Thread.sleep(1500); // Refresh every 1,5 second
+                    Thread.sleep(500); // Refresh every 0,5 second
                 } catch (InterruptedException e) {
                     keepRunning = false;
                 }
