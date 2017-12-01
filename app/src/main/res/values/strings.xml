@@ -1,3 +1,18 @@
 <resources>
-    <string name="app_name">RFLocus</string>
+    <string name="app_name">RFLocus Admin</string>
+    <string name="ssid_ap1">SSID AP1</string>
+    <string name="mac_ap1">MAC AP1</string>
+    <string name="rss_ap1">RSS AP1</string>
+    <string name="ssid_ap2">SSID AP2</string>
+    <string name="mac_ap2">MAC AP2</string>
+    <string name="rss_ap2">RSS AP2</string>
+    <string name="ssid_ap3">SSID AP3</string>
+    <string name="mac_ap3">MAC AP3</string>
+    <string name="rss_ap3">RSS AP3</string>
+    <string name="posX">Posição X:</string>
+    <string name="posY">Posição Y:</string>
+    <string name="posz">Posição Z:</string>
+    <string name="cm">(cm)</string>
+    <string name="num">123:</string>
+    <string name="enviar">Enviar:</string>
 </resources>
