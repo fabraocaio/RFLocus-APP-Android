@@ -46,6 +46,16 @@ import static com.android.volley.Request.*;
 
 public class AdmActivity extends AppCompatActivity {
 
+    private enum TypeAuthent {
+        OPEN(0), WPA(1), WPE(2);
+
+        private final int valor;
+
+        TypeAuthent(int valorOption){
+            valor = valorOption;
+        }
+    }
+
     private static String TAG = "AdmActivity";
     private static String network = "RFLocus";
     private static String password = "oficina3";
@@ -65,7 +75,7 @@ public class AdmActivity extends AppCompatActivity {
 
     int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION;
 
-	/**
+    /**
      * Function to check if the device still connected to a network
      * @param ssid  Network SSID to be checked
      * @return boolean
@@ -76,82 +86,34 @@ public class AdmActivity extends AppCompatActivity {
         return wifiInfo.getSSID().equals("\""+ssid+"\"");
     }
 
-	/**
-	* Class that manager the log saving to the device's storage directory
-	*/
-    public static class CreateLog extends Application {
-        private static String TAG = "CreateLog";
-
-        /**
-         * Function to save the logcat into files on the device's storage directory
-         */
-        private static void createLog() {
-            if (isExternalStorageWritable()) {
-
-                //DateFormat df = new SimpleDateFormat.getDateTimeInstance("ddmmyy","hhmm");
-                File appDirectory = new File(Environment.getExternalStorageDirectory() + "/rflocusUser");
-                File logDirectory = new File(appDirectory + "/log");
-                File logFile1 = new File(logDirectory, "logcat_default" + System.currentTimeMillis() + ".txt");
-                File logFile2 = new File(logDirectory, "logcat_debug" + System.currentTimeMillis() + ".txt");
-
-                if (!appDirectory.exists()) {
-                    appDirectory.mkdir();
-                    Log.d(TAG,"Creating app directory");
-                }
-
-                if (!logDirectory.exists()) {
-                    logDirectory.mkdir();
-                    Log.d(TAG,"Creating log directory");
-                }
-
-                try {
-                    Process process = Runtime.getRuntime().exec("logcat -c");
-                    process = Runtime.getRuntime().exec("logcat -f " + logFile1 + " *:I");
-                    process = Runtime.getRuntime().exec("logcat -f " + logFile2 + " *:D");
-                    Log.d(TAG,"Log Saved");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-            } else if (isExternalStorageReadable()) {
-                Log.e(TAG, "External Storage only readable");
-            } else {
-                Log.e(TAG, "External Storage only accessible");
-            }
-        }
-
-        /***
-         * Checks if external storage is available for read and write
-         *
-         * @return boolean
-         */
-        public static boolean isExternalStorageWritable() {
-            String state = Environment.getExternalStorageState();
-            return Environment.MEDIA_MOUNTED.equals(state);
-        }
-
-        /***
-         * Checks if external storage is available to at least read
-         *
-         * @return boolean
-         */
-        public static boolean isExternalStorageReadable() {
-            String state = Environment.getExternalStorageState();
-            return Environment.MEDIA_MOUNTED.equals(state) ||
-                    Environment.MEDIA_MOUNTED_READ_ONLY.equals(state);
-        }
-    }
-	
     /**
-     * Function to automatically connect to a OPEN Wi-Fi network
+     * * Function to automatically connect to a WEP Wi-Fi network
      *
      * @param networkSSID String with the SSID of the desire network
+     * @param networkPass String with the password of the desire network
+     * @param type TypeAuthent with the authentication type
      */
-    private void autoConnectOPEN(String networkSSID) {
+    private void autoConnect(String networkSSID,String networkPass,TypeAuthent type) {
         WifiConfiguration conf = new WifiConfiguration();
         conf.SSID = "\"" + networkSSID + "\"";   // Please note the quotes. String should contain ssid in quotes
-        //For OPEN password
-        conf.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
+        switch (type){
+            case OPEN:
+                conf.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
+                break;
+            case WPA:
+                conf.preSharedKey = "\"" + networkPass + "\"";
+                break;
+            case WPE:{
+                conf.wepKeys[0] = "\"" + networkPass + "\"";
+                conf.wepTxKeyIndex = 0;
+                conf.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
+                conf.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.WEP40);
+                break;
+            }
+            default:
+                Log.e("AutoConnect","Opção inválida");
+                return;
+        }
         //Add setting to WifiManager
         wifiMgr = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         int netID = wifiMgr.addNetwork(conf);
@@ -159,50 +121,6 @@ public class AdmActivity extends AppCompatActivity {
         wifiMgr.enableNetwork(netID, true);
         wifiMgr.reconnect();
         Log.d("AutoConnect", "Open");
-    }
-
-    /**
-     * Function to automatically connect to a WPA Wi-Fi network
-     *
-     * @param networkSSID String with the SSID of the desire network
-     * @param networkPass String with the password of the desire network
-     */
-    private void autoConnectWPA(String networkSSID, String networkPass) {
-        WifiConfiguration conf = new WifiConfiguration();
-        conf.SSID = "\"" + networkSSID + "\"";   // Please note the quotes. String should contain ssid in quotes
-        //For WPA password
-        conf.preSharedKey = "\"" + networkPass + "\"";
-        //Add setting to WifiManager
-        wifiMgr = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-        wifiMgr.addNetwork(conf);
-        int netID = wifiMgr.addNetwork(conf);
-        wifiMgr.disconnect();
-        wifiMgr.enableNetwork(netID, true);
-        wifiMgr.reconnect();
-        Log.d("AutoConnect", "WPA");
-    }
-
-    /**
-     * Function to automatically connect to a WEP Wi-Fi network
-     *
-     * @param networkSSID String with the SSID of the desire network
-     * @param networkPass String with the password of the desire network
-     */
-    private void autoConnectWEP(String networkSSID, String networkPass) {
-        WifiConfiguration conf = new WifiConfiguration();
-        conf.SSID = "\"" + networkSSID + "\"";   // Please note the quotes. String should contain ssid in quotes
-        //for wep
-        conf.wepKeys[0] = "\"" + networkPass + "\"";
-        conf.wepTxKeyIndex = 0;
-        conf.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
-        conf.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.WEP40);
-        //Add setting to WifiManager
-        wifiMgr = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-        wifiMgr.addNetwork(conf);
-        int netID = wifiMgr.addNetwork(conf);
-        wifiMgr.disconnect();
-        wifiMgr.enableNetwork(netID, true);
-        wifiMgr.reconnect();
     }
 
     /**
@@ -310,7 +228,7 @@ public class AdmActivity extends AppCompatActivity {
 
         apList = new ArrayList<>();
 
-        autoConnectWPA(network,password);
+        autoConnect(network,password,TypeAuthent.WPA);
         requestGET();
         startRefresh();
         Log.i("LogSave","apid1,rssi1,apid2,rssi2,apid3,rssi3,posX,posY,posZ");
@@ -399,12 +317,12 @@ public class AdmActivity extends AppCompatActivity {
         }
         else {
             Toast.makeText(AdmActivity.this, "Reconectando", Toast.LENGTH_SHORT).show();
-            autoConnectWPA(network,password);
+            autoConnect(network,password,TypeAuthent.WPA);
             Log.d(TAG,"Reconectando à rede");
         }
     }
 
-	 /**
+    /**
      * Function to generated the AP information to a log format
      *
      * @param apList List of Ap's
@@ -571,5 +489,72 @@ public class AdmActivity extends AppCompatActivity {
             return null;
         }
 
+    }
+
+    /**
+     * Class that manager the log saving to the device's storage directory
+     */
+    public static class CreateLog extends Application {
+        private static String TAG = "CreateLog";
+
+        /**
+         * Function to save the logcat into files on the device's storage directory
+         */
+        private static void createLog() {
+            boolean ret;
+            if (isExternalStorageWritable()) {
+
+                //DateFormat df = new SimpleDateFormat.getDateTimeInstance("ddmmyy","hhmm");
+                File appDirectory = new File(Environment.getExternalStorageDirectory() + "/rflocusUser");
+                File logDirectory = new File(appDirectory + "/log");
+                File logFileDefault = new File(logDirectory, "logcat_default" + System.currentTimeMillis() + ".txt");
+                File logFileDebug = new File(logDirectory, "logcat_debug" + System.currentTimeMillis() + ".txt");
+
+                if (!appDirectory.exists()) {
+                    ret = appDirectory.mkdir();
+                    Log.d(TAG,"APP directory create: "+ret);
+                }
+
+                if (!logDirectory.exists()) {
+                    ret = logDirectory.mkdir();
+                    Log.d(TAG,"Log directory create: "+ret);
+                }
+
+                try {
+                    Runtime.getRuntime().exec("logcat -c");
+                    Runtime.getRuntime().exec("logcat -f " + logFileDefault + " *:I");
+                    Runtime.getRuntime().exec("logcat -f " + logFileDebug + " *:D");
+                    Log.d(TAG,"Log Saved");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            } else if (isExternalStorageReadable()) {
+                Log.e(TAG, "External Storage only readable");
+            } else {
+                Log.e(TAG, "External Storage only accessible");
+            }
+        }
+
+        /***
+         * Checks if external storage is available for read and write
+         *
+         * @return boolean
+         */
+        public static boolean isExternalStorageWritable() {
+            String state = Environment.getExternalStorageState();
+            return Environment.MEDIA_MOUNTED.equals(state);
+        }
+
+        /***
+         * Checks if external storage is available to at least read
+         *
+         * @return boolean
+         */
+        public static boolean isExternalStorageReadable() {
+            String state = Environment.getExternalStorageState();
+            return Environment.MEDIA_MOUNTED.equals(state) ||
+                    Environment.MEDIA_MOUNTED_READ_ONLY.equals(state);
+        }
     }
 }
